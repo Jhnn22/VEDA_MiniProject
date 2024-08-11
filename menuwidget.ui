@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MenuWidget</class>
+ <widget class="QWidget" name="MenuWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>나중에 .gif로 꾸밀거임! 아마도...?</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="gameStart">
+         <property name="text">
+          <string>게임시작</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="memberList">
+         <property name="text">
+          <string>회원목록</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="wordList">
+         <property name="text">
+          <string>단어목록</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
