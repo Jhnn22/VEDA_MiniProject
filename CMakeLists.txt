@@ -14,15 +14,35 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        menuwindow.cpp
-        menuwindow.h
-        menuwindow.ui
+
+
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(VEDA_MiniProject
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        menuwidget.h menuwidget.cpp menuwidget.ui
+        signindialog.h signindialog.cpp signindialog.ui
+        signupdialog.h signupdialog.cpp signupdialog.ui
+        memberinfodialog.h memberinfodialog.cpp memberinfodialog.ui
+        wordinfodialog.h wordinfodialog.cpp wordinfodialog.ui
+        gamewidget.h gamewidget.cpp gamewidget.ui
+        member.h
+        nonmember.h
+        randomnumbergenerator.h
+        gamemanage.h gamemanage.cpp
+
+
+
+
+
+
+
+
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET VEDA_MiniProject APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
