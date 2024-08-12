@@ -20,14 +20,14 @@ public:
     explicit SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidget *parent = nullptr);
     ~SignInDialog();
 
+    // 회원 로그인에 한해서 로그인 정보를 유지
+    static bool isLoggedIn;
+    static QString currentId;
+
 private slots:
     void memberSignInButtonClicked();
-
     void nonMemberSignInButtonClicked();
-
     void signUpToMemberButtonClicked();
-
-
 
 private:
     Ui::SignInDialog *ui;

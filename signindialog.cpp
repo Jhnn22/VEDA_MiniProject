@@ -5,6 +5,9 @@
 #include <QMessageBox>
 #include <QMap>
 
+bool SignInDialog::isLoggedIn = false;
+QString SignInDialog::currentId = "";
+
 SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidget *parent)
     : QDialog(parent)
     , member(member), ui(new Ui::SignInDialog)
@@ -39,6 +42,8 @@ void SignInDialog::memberSignInButtonClicked()
     }
 
     if(member.contains(id) && member[id]["password"] == pw){
+        isLoggedIn = true;
+        currentId = id;
         accept();
     }
     else{
@@ -56,6 +61,8 @@ void SignInDialog::nonMemberSignInButtonClicked()
         QMessageBox::warning(this, "경고", "이름을 입력해주세요.");
         return;
     }
+
+    accept();
 }
 
 void SignInDialog::signUpToMemberButtonClicked()

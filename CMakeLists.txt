@@ -29,10 +29,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         memberinfodialog.h memberinfodialog.cpp memberinfodialog.ui
         wordinfodialog.h wordinfodialog.cpp wordinfodialog.ui
         gamewidget.h gamewidget.cpp gamewidget.ui
-        member.h
-        nonmember.h
+
+
         randomnumbergenerator.h
         gamemanage.h gamemanage.cpp
+        mileage.h mileage.cpp
+
 
 
 

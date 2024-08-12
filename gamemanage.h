@@ -1,20 +1,27 @@
 #ifndef GAMEMANAGE_H
 #define GAMEMANAGE_H
 
+#include <QMap>
 class QString;
 
 class GameManage
 {
 private:
-    int maxAttempts;
-    int currentAttempts;
-public:
-    GameManage():maxAttempts(0), currentAttempts(0){}
-    GameManage(int maxAttempts):maxAttempts(maxAttempts), currentAttempts(0){}
-    // void gameStart();
-    bool run(QString &question, QString &answer, QString &resultString);
-    bool isGameOver();
-    void resetAttempts();
+    QMap<QString, QMap<QString, QString>> member;
+public: 
+    GameManage(){}
+    ~GameManage(){}
+
+    enum class gameResult{
+        correct,
+        inCorrect,
+        gameOver
+    };
+
+    void gameStart();
+    gameResult run(QString &question, QString &answer, QString &resultString, int &currentAttempts, int &maxAttempts);
+    bool isGameOver(int &currentAttempts, int &maxAttempts);
+    void resetAttempts(int &currentAttempts, int &maxAttempts);
 };
 
 #endif // GAMEMANAGE_H
