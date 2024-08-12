@@ -28,13 +28,24 @@ MenuWidget::MenuWidget(QWidget *parent)
 
 void MenuWidget::gameStartClicked()
 {
-    signInDialog = new SignInDialog(member, this);
-    if (signInDialog->exec() == QDialog::Accepted) {
+    // 회원 로그인 정보가 없으면 로그인 창 생성 후 게임시작
+    if(!SignInDialog::isLoggedIn){
+        signInDialog = new SignInDialog(member, this);
+        if (signInDialog->exec() == QDialog::Accepted) {
+            GameWidget * gameWidget = new GameWidget(nullptr, this);
+            gameWidget->show();
+            this->hide();
+        }
+        delete signInDialog;
+    }
+
+    // 회원 로그인 정보가 있으면 바로 게임시작
+    else{
         GameWidget * gameWidget = new GameWidget(nullptr, this);
         gameWidget->show();
         this->hide();
     }
-    delete signInDialog;
+
 }
 
 
