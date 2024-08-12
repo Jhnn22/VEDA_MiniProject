@@ -20,6 +20,8 @@ MemberInfoDialog::MemberInfoDialog(QString &fileName, QWidget *parent)
     loadMemberInfo(fileName, member);
     connect(ui->search, &QPushButton::clicked, this, &MemberInfoDialog::searchButtonClicked);
 
+    //클릭했을 때, SearchedMemberInfo에 뜨게 설정
+    connect(ui->nickNameList, &QListView::clicked, this, &MemberInfoDialog::NickNameListClicked);
 }
 
 bool MemberInfoDialog::loadMemberInfo(QString &fileName, QMap<QString, QMap<QString, QString>> &member){
@@ -85,4 +87,19 @@ void MemberInfoDialog::searchButtonClicked(){
 MemberInfoDialog::~MemberInfoDialog()
 {
     delete ui;
+}
+
+//닉네임리스트 클릭하면 info 띄움
+void MemberInfoDialog::NickNameListClicked(const QModelIndex &index)
+{
+    //NickName list에 표시된 data를 string으로 변환해서 QString에 저장하기.
+    QString selectedNickName = index.data(Qt::DisplayRole).toString();
+
+    for(auto it = member.begin(); it != member.end(); it++){
+        if(it.value()["nickname"] == selectedNickName){
+            QString info = QString("NICKNAME : %1\n ID : %2\n PW : %3").arg(it.value()["nickname"], it.key(), it.value()["password"]);
+            ui->searchedMemberInfo->setText(info);
+            break;
+        }
+    }
 }
