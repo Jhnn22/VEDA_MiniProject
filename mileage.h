@@ -11,11 +11,12 @@ public:
     ~Mileage(){}
 
     void addMileage(int amount);
-    int getMileage();
-    QString displayMileage();
+    QString getMileage();
+    // QString displayMileage();
     int getExtraAttemptsBasedOnMileage();
     void usedMileage(int amount);
     int calculateMileage(int attempts, int amount);
+    void resetMileageIfNotLoggedIn();    // 비회원은 마일리지X
 
 };
 

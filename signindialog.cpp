@@ -1,6 +1,7 @@
 #include "signindialog.h"
 #include "ui_signindialog.h"
 #include "signupdialog.h"
+#include "memberinfodialog.h"
 #include <QString>
 #include <QMessageBox>
 #include <QMap>
@@ -23,10 +24,7 @@ SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidge
     connect(ui->memberSignIn, &QPushButton::clicked, this, &SignInDialog::memberSignInButtonClicked);
     connect(ui->nonMemberSignIn, &QPushButton::clicked, this, &SignInDialog::nonMemberSignInButtonClicked);
     connect(ui->memberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);
-    connect(ui->nonMemberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);
-
-    // //테스트
-    // userInfo();
+    connect(ui->nonMemberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);   
 }
 
 SignInDialog::~SignInDialog()
@@ -45,6 +43,10 @@ QString SignInDialog::userInfo(){
 
 void SignInDialog::memberSignInButtonClicked()
 {
+    // // 회원 정보 실시간 연동
+    // QString memberFileName = "member.txt";
+    // MemberInfoDialog::loadMemberInfo(memberFileName, member);
+
     id = ui->inputId->text();
     pw = ui->inputPw->text();
 

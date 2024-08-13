@@ -18,14 +18,16 @@ class SignUpDialog : public QDialog
 public:
     explicit SignUpDialog(QMap<QString, QMap<QString, QString>>& member, QWidget *parent = nullptr);
     ~SignUpDialog();
-    void updateSignUpButtonState();
     void saveMemberInfoToCsv();
+    void updateSignUpButtonState();
 
 private slots:
     void nickNameDuplicateCheckButtonClicked();
     void idDuplicateCheckButtonClicked();
-
+    void displayVerifyPw();
     void signUpButtonClicked();
+    void textChanged();
+
 
 private:
     Ui::SignUpDialog *ui;
@@ -33,6 +35,7 @@ private:
     QString nickName, id_2, pw_2;
     bool isNickNameChecked;
     bool isIdChecked;
+    bool isPwVerifyed;
 };
 
 #endif // SIGNUPDIALOG_H

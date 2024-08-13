@@ -82,7 +82,7 @@
         </size>
        </property>
        <property name="text">
-        <string>닉네임 중복 체크 메세지</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -140,7 +140,7 @@
         </size>
        </property>
        <property name="text">
-        <string>아이디 중복 체크 메세지</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -191,7 +191,7 @@
         </size>
        </property>
        <property name="text">
-        <string>비밀번호 일치 확인 메세지</string>
+        <string/>
        </property>
       </widget>
      </item>
