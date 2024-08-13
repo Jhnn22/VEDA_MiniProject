@@ -23,13 +23,20 @@ public:
     explicit GameWidget(QMap<QString, QMap<QString, QString>> &member, MenuWidget *menuWidget = nullptr, QWidget *parent = nullptr);
     ~GameWidget();
     void updateThemeCheckBox();
-    void updateAttemptsAndMileage();
-    void updateUserInfo();
+    void displayAttemptsAndMileage();
+    void displayUserInfo();
+    void displayResult(GameManage::gameResult gameResult, QString & resultString);
+    void correct();
+    void gameOver();
+    void finishGame();
+
 
 private slots:
     void updateAddButtonState();
     void addButtonClicked();
     void confirmButtonClicked();
+    void logOutButtonClicked();
+    void quitButtonClicked();
     void resetGame();
     void goToMenu();
 

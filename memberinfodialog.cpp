@@ -31,7 +31,7 @@ bool MemberInfoDialog::loadMemberInfo(QString &fileName, QMap<QString, QMap<QStr
             member.clear();  // 기존 QMap초기화로 중복 방지
             while(!in.atEnd()){
                 QString line = in.readLine();
-                QStringList fields = line.split(" ");
+                QStringList fields = line.split(' ');
                 if(fields.size() == 3){
                     QString str1 = fields[0];
                     QString str2 = fields[1];

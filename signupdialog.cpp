@@ -10,7 +10,7 @@ SignUpDialog::SignUpDialog(QMap<QString, QMap<QString, QString>>& member, QWidge
     : QDialog(parent)
     , ui(new Ui::SignUpDialog)
     , member(member)
-    , isNickNameChecked(false), isIdChecked(false)
+    , isNickNameChecked(false), isIdChecked(false), isPwVerifyed(false)
 {
     ui->setupUi(this);
 
@@ -18,6 +18,7 @@ SignUpDialog::SignUpDialog(QMap<QString, QMap<QString, QString>>& member, QWidge
     ui->makeNickName->setPlaceholderText("닉네임");
     ui->makeId->setPlaceholderText("아이디");
     ui->makePw->setPlaceholderText("비밀번호");
+    ui->verifyPw->setPlaceholderText("비밀번호 확인");
 
     // 가입하기 버튼은 최초 비활성화
     ui->signUp->setEnabled(false);
@@ -25,88 +26,19 @@ SignUpDialog::SignUpDialog(QMap<QString, QMap<QString, QString>>& member, QWidge
     connect(ui->duplicateCheck1, &QPushButton::clicked, this, &SignUpDialog::nickNameDuplicateCheckButtonClicked);
     connect(ui->duplicateCheck2, &QPushButton::clicked, this, &SignUpDialog::idDuplicateCheckButtonClicked);
     connect(ui->signUp, &QPushButton::clicked, this, &SignUpDialog::signUpButtonClicked);
+    connect(ui->verifyPw, &QLineEdit::textChanged, this, &SignUpDialog::displayVerifyPw);
 
     // LineEdit의 상태에 따라 가입하기 버튼의 활성화/비활성화를 결정
-    connect(ui->makeNickName, &QLineEdit::textChanged, this, [this]() {
-        isNickNameChecked = false;
-        updateSignUpButtonState();
-    });
-    connect(ui->makeId, &QLineEdit::textChanged, this, [this]() {
-        isIdChecked = false;
-        updateSignUpButtonState();
-    });
-    connect(ui->makePw, &QLineEdit::textChanged, this, [this]() {
-        updateSignUpButtonState();
-    });
-
+    connect(ui->makeNickName, &QLineEdit::textChanged, this, &SignUpDialog::textChanged);
+    connect(ui->makeId, &QLineEdit::textChanged, this, &SignUpDialog::textChanged);
+    connect(ui->makePw, &QLineEdit::textChanged, this, &SignUpDialog::textChanged);
+    connect(ui->verifyPw, &QLineEdit::textChanged, this, &SignUpDialog::textChanged);
     qDebug() << "SignUpDialog created. Current members:" << member.size();
-
 }
 
 SignUpDialog::~SignUpDialog()
 {
     delete ui;
-}\
-
-void SignUpDialog::nickNameDuplicateCheckButtonClicked()
-{
-    //빈칸 예외처리
-    nickName = ui->makeNickName->text();
-    if(nickName.isEmpty()){
-        QMessageBox::warning(this, "경고", "닉네임을 입력해주세요.");
-        return;
-    }
-
-    bool nickNameDuplicated = false;
-    for(auto it = member.begin(); it != member.end(); it++){
-        if(it.value().value("nickname") == nickName){
-            nickNameDuplicated = true;
-            break;
-        }
-    }
-    if(nickNameDuplicated){
-        QMessageBox::warning(this, "경고", "닉네임이 이미 존재합니다.");
-        return;
-    }
-    else{
-        QMessageBox::information(this, "확인", "사용 가능한 닉네임입니다.");
-        isNickNameChecked = true;
-        updateSignUpButtonState();
-    }
-}
-
-void SignUpDialog::idDuplicateCheckButtonClicked()
-{
-    //빈칸 예외처리
-    id_2 = ui->makeId->text();
-    if(id_2.isEmpty()){
-        QMessageBox::warning(this, "경고", "아이디를 입력해주세요.");
-        return;
-    }
-    else if(member.contains(id_2)){
-        QMessageBox::warning(this, "경고", "아이디가 이미 존재합니다.");
-        return;
-    }
-    else{
-        QMessageBox::information(this, "확인", "사용 가능한 아이디입니다.");
-        isIdChecked = true;
-        updateSignUpButtonState();
-    }
-}
-
-
-void SignUpDialog::signUpButtonClicked()
-{
-    pw_2 = ui->makePw->text();
-    member[id_2] = {{"nickname", nickName}, {"password", pw_2}};
-    QMessageBox::information(this, "성공", QString("%1님 환영합니다!").arg(nickName));
-    saveMemberInfoToCsv();
-    accept();
-}
-
-// 입력칸이 하나라도 비워져 있으면 가입하기 버튼 비활성화 처리
-void SignUpDialog::updateSignUpButtonState(){
-    ui->signUp->setEnabled(isNickNameChecked && isIdChecked && !(ui->makePw->text().isEmpty()));
 }
 
 // 회원가입을 한 유저 정보를 .txt로 저장
@@ -125,4 +57,92 @@ void SignUpDialog::saveMemberInfoToCsv(){
         file.close();
     }
     else return;
+}
+
+// 닉네임, 아이디, 비밀번호 중 하나라도 통과 못하면 가입 버튼 비활성화
+void SignUpDialog::updateSignUpButtonState(){
+    ui->signUp->setEnabled(isNickNameChecked && isIdChecked && isPwVerifyed);
+}
+
+
+void SignUpDialog::nickNameDuplicateCheckButtonClicked()
+{
+    //빈칸 예외처리
+    nickName = ui->makeNickName->text();
+    if(nickName.isEmpty()){
+        ui->label->setText("닉네임을 입력해주세요.");
+        ui->label->setStyleSheet("color: red;");
+        return;
+    }
+
+    bool nickNameDuplicated = false;
+    for(auto it = member.begin(); it != member.end(); it++){
+        if(it.value().value("nickname") == nickName){
+            nickNameDuplicated = true;
+            break;
+        }
+    }
+    if(nickNameDuplicated){
+        ui->label->setText("닉네임이 이미 존재합니다.");
+        ui->label->setStyleSheet("color: red;");
+        return;
+    }
+    else{
+        ui->label->setText("사용 가능한 닉네임입니다.");
+        ui->label->setStyleSheet("color: green;");
+        isNickNameChecked = true;
+        updateSignUpButtonState();
+    }
+}
+
+void SignUpDialog::idDuplicateCheckButtonClicked()
+{
+    //빈칸 예외처리
+    id_2 = ui->makeId->text();
+    if(id_2.isEmpty()){
+        ui->label_2->setText("아이디를 입력해주세요.");
+        ui->label_2->setStyleSheet("color: red;");
+        return;
+    }
+
+    if(member.contains(id_2)){
+        ui->label_2->setText("아이디가 이미 존재합니다.");
+        ui->label_2->setStyleSheet("color: red;");
+        return;
+    }
+    else{
+        ui->label_2->setText("사용 가능한 아이디입니다.");
+        ui->label_2->setStyleSheet("color: green;");
+        isIdChecked = true;
+        updateSignUpButtonState();
+    }
+}
+
+void SignUpDialog::displayVerifyPw(){
+    pw_2 = ui->makePw->text();
+    QString str = ui->verifyPw->text();
+    if(pw_2 == str){
+        ui->label_3->setText("비밀번호가 일치합니다.");
+        ui->label_3->setStyleSheet("color: green;");
+        isPwVerifyed = true;
+    }
+    else{
+        ui->label_3->setText("비밀번호가 일치하지 않습니다.");
+        ui->label_3->setStyleSheet("color: red;");
+        isPwVerifyed = false;
+    }
+}
+
+void SignUpDialog::signUpButtonClicked()
+{
+    member[id_2] = {{"nickname", nickName}, {"password", pw_2}};
+    saveMemberInfoToCsv();
+    QMessageBox::information(this, "성공", QString("%1님 환영합니다!").arg(nickName));
+}
+
+void SignUpDialog::textChanged(){
+    if(sender() == ui->makeNickName) isNickNameChecked = false;
+    else if(sender() == ui->makeId) isIdChecked = false;
+    else if(sender() == ui->makePw || sender() == ui->verifyPw) displayVerifyPw();
+    updateSignUpButtonState();
 }
