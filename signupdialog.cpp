@@ -54,6 +54,7 @@ void SignUpDialog::nickNameDuplicateCheckButtonClicked()
     nickName = ui->makeNickName->text();
     if(nickName.isEmpty()){
         QMessageBox::warning(this, "경고", "닉네임을 입력해주세요.");
+        return;
     }
 
     bool nickNameDuplicated = false;
@@ -65,6 +66,7 @@ void SignUpDialog::nickNameDuplicateCheckButtonClicked()
     }
     if(nickNameDuplicated){
         QMessageBox::warning(this, "경고", "닉네임이 이미 존재합니다.");
+        return;
     }
     else{
         QMessageBox::information(this, "확인", "사용 가능한 닉네임입니다.");
@@ -75,12 +77,15 @@ void SignUpDialog::nickNameDuplicateCheckButtonClicked()
 
 void SignUpDialog::idDuplicateCheckButtonClicked()
 {
+    //빈칸 예외처리
     id_2 = ui->makeId->text();
     if(id_2.isEmpty()){
         QMessageBox::warning(this, "경고", "아이디를 입력해주세요.");
+        return;
     }
     else if(member.contains(id_2)){
         QMessageBox::warning(this, "경고", "아이디가 이미 존재합니다.");
+        return;
     }
     else{
         QMessageBox::information(this, "확인", "사용 가능한 아이디입니다.");

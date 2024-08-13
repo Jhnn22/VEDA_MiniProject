@@ -32,7 +32,7 @@ void MenuWidget::gameStartClicked()
     if(!SignInDialog::isLoggedIn){
         signInDialog = new SignInDialog(member, this);
         if (signInDialog->exec() == QDialog::Accepted) {
-            GameWidget * gameWidget = new GameWidget(nullptr, this);
+            GameWidget * gameWidget = new GameWidget(member, this, nullptr);
             gameWidget->show();
             this->hide();
         }
@@ -41,7 +41,7 @@ void MenuWidget::gameStartClicked()
 
     // 회원 로그인 정보가 있으면 바로 게임시작
     else{
-        GameWidget * gameWidget = new GameWidget(nullptr, this);
+        GameWidget * gameWidget = new GameWidget(member, this, nullptr);
         gameWidget->show();
         this->hide();
     }
@@ -52,7 +52,7 @@ void MenuWidget::gameStartClicked()
 void MenuWidget::memberListClicked()
 {
     memberInfoDialog = new MemberInfoDialog(memberFileName, this);
-    memberInfoDialog->setMemberInfo(member);  // 새로운 함수를 추가해야 합니다
+    memberInfoDialog->setMemberInfo(member);
     memberInfoDialog->exec();
     delete memberInfoDialog;
 }

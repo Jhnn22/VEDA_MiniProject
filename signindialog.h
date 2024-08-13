@@ -20,9 +20,11 @@ public:
     explicit SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidget *parent = nullptr);
     ~SignInDialog();
 
-    // 회원 로그인에 한해서 로그인 정보를 유지
+    // 로그인 정보 저장
     static bool isLoggedIn;
     static QString currentId;
+    static QString currentName;
+    QString userInfo();
 
 private slots:
     void memberSignInButtonClicked();
@@ -33,9 +35,7 @@ private:
     Ui::SignInDialog *ui;
     QString id, pw, name;
     QMap<QString, QMap<QString, QString>> member;
-    SignUpDialog *SUD;
-
-
+    SignUpDialog *signUpDialog;
 };
 
 #endif // SIGNINDIALOG_H

@@ -7,6 +7,7 @@
 
 bool SignInDialog::isLoggedIn = false;
 QString SignInDialog::currentId = "";
+QString SignInDialog::currentName = "";
 
 SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidget *parent)
     : QDialog(parent)
@@ -23,11 +24,23 @@ SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidge
     connect(ui->nonMemberSignIn, &QPushButton::clicked, this, &SignInDialog::nonMemberSignInButtonClicked);
     connect(ui->memberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);
     connect(ui->nonMemberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);
+
+    // //테스트
+    // userInfo();
 }
 
 SignInDialog::~SignInDialog()
 {
     delete ui;
+}
+
+QString SignInDialog::userInfo(){
+    if(isLoggedIn){
+        return QString("%1님\n%2").arg(QString(member[currentId]["nickname"])).arg(currentId);
+    }
+    else{
+        return QString("%1님").arg(currentName);
+    }
 }
 
 void SignInDialog::memberSignInButtonClicked()
@@ -44,6 +57,9 @@ void SignInDialog::memberSignInButtonClicked()
     if(member.contains(id) && member[id]["password"] == pw){
         isLoggedIn = true;
         currentId = id;
+        qDebug() << member[id]["nickname"];
+        //테스트
+        userInfo();
         accept();
     }
     else{
@@ -62,13 +78,14 @@ void SignInDialog::nonMemberSignInButtonClicked()
         return;
     }
 
+    currentName = name;
     accept();
 }
 
 void SignInDialog::signUpToMemberButtonClicked()
 {
-    SUD = new SignUpDialog(member, this);
-    SUD->exec();
+    signUpDialog = new SignUpDialog(member, this);
+    signUpDialog->exec();
 }
 
 

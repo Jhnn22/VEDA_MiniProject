@@ -5,18 +5,21 @@
 #include "randomnumbergenerator.h"
 #include "gamemanage.h"
 #include "menuwidget.h"
+#include "signindialog.h"
+#include "signupdialog.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QVector>
 #include <QMessageBox>
 
-GameWidget::GameWidget(QWidget *parent, MenuWidget *menuWidget)
+GameWidget::GameWidget(QMap<QString, QMap<QString, QString>> &member ,MenuWidget *menuWidget, QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::GameWidget), gameManage(), menuWidget(menuWidget)
+    , ui(new Ui::GameWidget), member(member), menuWidget(menuWidget), gameManage()
     , currentAttempts(0), maxAttempts(10)
     , anyChecked(false), isWordAdded(false)
 {
     ui->setupUi(this);
+    signInDialog = new SignInDialog(member, this);
     QString currentDir = QDir::currentPath();
     QString dirPath2 = QDir(currentDir).filePath("theme");
     WordInfoDialog wordInfoDialog(dirPath2, this);
@@ -27,6 +30,8 @@ GameWidget::GameWidget(QWidget *parent, MenuWidget *menuWidget)
         qDebug() << "Failed to load word information";
     }
 
+
+    updateUserInfo(); // 유저 정보 표시
     updateAddButtonState();
     ui->confirm->setEnabled(false);
     connect(ui->add, &QPushButton::clicked, this, &GameWidget::addButtonClicked);
@@ -66,16 +71,20 @@ void GameWidget::updateAddButtonState(){
     ui->add->setEnabled(anyChecked);
 }
 
-void GameWidget::updateNickNameAndId(){
-
+void GameWidget::updateUserInfo(){
+    if (signInDialog) {
+        ui->userInfo->setText(signInDialog->userInfo());
+    } else {
+        qDebug() << "Error: signInDialog is null";
+    }
 }
 
 void GameWidget::updateAttemptsAndMileage(){
     // 시도 횟수 & 누적 마일리지 설정
     int remainingAttempts = maxAttempts - currentAttempts;
     QString accumulatedMileage =  mileage.displayMileage();
-    QString labelText = QString("남은 시도 횟수 : %1\n마일리지 : %2").arg(remainingAttempts).arg(accumulatedMileage);
-    ui->attemptsAndMileage->setText(labelText);
+    QString str = QString("남은 시도 횟수 : %1\n마일리지 : %2").arg(remainingAttempts).arg(accumulatedMileage);
+    ui->attemptsAndMileage->setText(str);
 }
 
 void GameWidget::addButtonClicked(){
@@ -102,10 +111,6 @@ void GameWidget::addButtonClicked(){
     // 시도 횟수 초기화
     gameManage.resetAttempts(currentAttempts, maxAttempts);
 
-    // // label_3 초기화
-    // // 추후에 labe_3 함수 따로 파서 간단하게 호출, 지금은 임시방편
-    // ui->attemptsAndMileage->setText("남은 시도 횟수 : 10\n마일리지 : 0");
-
     // 시도 횟수 & 누적 마일리지 설정
     updateAttemptsAndMileage();
 
@@ -126,12 +131,15 @@ void GameWidget::confirmButtonClicked(){
     ui->result->append(input2);
     ui->result->append(resultString);
 
-    // 마일리지 설정
-    int earnedMileage = mileage.calculateMileage(1, 3); // 매 시도마다 1회분의 마일리지만 추가
-    mileage.addMileage(earnedMileage);
+    // 유저가 회원인 경우에만 마일리지 적용
+    if(SignInDialog::isLoggedIn){
+        // 마일리지 설정
+        int earnedMileage = mileage.calculateMileage(1, 3); // 매 시도마다 1회분의 마일리지만 추가
+        mileage.addMileage(earnedMileage);
 
-    // 시도 횟수 & 누적 마일리지 설정
-    updateAttemptsAndMileage();
+        // 시도 횟수 & 누적 마일리지 설정
+        updateAttemptsAndMileage();
+    }
 
     // 게임 결과, gameResult는 멤버변수로 선언해서 함수를 나눠도 상관없게 하자
     switch(gameResult) {
