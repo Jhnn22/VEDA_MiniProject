@@ -22,6 +22,7 @@ WordInfoDialog::WordInfoDialog(QString &dirPath, QWidget *parent)
     connect(ui->search2, &QPushButton::clicked, this, &WordInfoDialog::search2ButtonClicked);
 }
 
+//이부분 수정 필요
 bool WordInfoDialog::loadWordInfo(QString &dirPath, QMap<QString, QString> &word){
     QDir dir(dirPath);
     QStringList stringList;
