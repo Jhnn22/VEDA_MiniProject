@@ -24,6 +24,7 @@ public:
 
 private slots:
     void searchButtonClicked();
+    void NickNameListClicked(const QModelIndex &index);
 
 
 private:
