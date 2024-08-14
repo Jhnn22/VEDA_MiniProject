@@ -3,6 +3,7 @@
 #include "gamemanage.h"
 #include "memberinfodialog.h"
 #include "menuwidget.h"
+#include "mileage.h"
 #include "randomnumbergenerator.h"
 #include "signindialog.h"
 #include "signupdialog.h"
@@ -31,6 +32,7 @@ GameWidget::GameWidget(QMap<QString, QMap<QString, QString>> &member ,MenuWidget
         qDebug() << "error: failed to load word information from path" << dirPath2;
     }
 
+
     displayUserInfo();
     updateAddButtonState();
     ui->confirm->setEnabled(false);
@@ -39,10 +41,6 @@ GameWidget::GameWidget(QMap<QString, QMap<QString, QString>> &member ,MenuWidget
     connect(ui->confirm, &QPushButton::clicked, this, &GameWidget::confirmButtonClicked);
     connect(ui->logOut, &QPushButton::clicked, this, &GameWidget::logOutButtonClicked);
     connect(ui->quit, &QPushButton::clicked, this, &GameWidget::quitButtonClicked);
-
-    // // confirm 버튼 단축키 "엔터" 설정
-    // QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
-    // connect(shortcut, &QShortcut::activated, this, &GameWidget::confirmButtonClicked);
 }
 
 GameWidget::~GameWidget()
@@ -71,6 +69,8 @@ void GameWidget::displayAttemptsAndMileage(){
     QString accumulatedMileage = mileage.getMileage();
     QString display = QString("남은 시도 횟수 : %1\n누적 마일리지 : %2").arg(remainingAttempts).arg(accumulatedMileage);
     ui->attemptsAndMileage->setText(display);
+    qDebug() << "Remaining Attempts:" << remainingAttempts;
+    qDebug() << "Accumulated Mileage:" << accumulatedMileage;
 }
 
 void GameWidget::displayUserInfo(){
@@ -190,14 +190,14 @@ void GameWidget::confirmButtonClicked(){
     case GameManage::gameResult::inCorrect: mileage.addMileage(3); break;
     case GameManage::gameResult::inValidInput: return;
     case GameManage::gameResult::gameOver: gameOver(); break;
-    default: qDebug() << "error: unexpected game result"; break;
-
+    }
     // 남은 횟수 & 마일리지 설정
     displayAttemptsAndMileage();
 
+
     // 게임 끝나기 전 까지는 add 버튼 비활성화
     ui->add->setEnabled(false);
-    }
+
 }
 
 void GameWidget::logOutButtonClicked(){
