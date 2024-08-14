@@ -15,6 +15,7 @@ public:
     enum class gameResult{
         correct,
         inCorrect,
+        inValidInput,
         gameOver
     };
 

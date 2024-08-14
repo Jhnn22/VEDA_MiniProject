@@ -1,22 +1,27 @@
 #include "gamewidget.h"
 #include "ui_gamewidget.h"
-#include "memberinfodialog.h"
-#include "wordinfodialog.h"
-#include "randomnumbergenerator.h"
 #include "gamemanage.h"
+#include "memberinfodialog.h"
 #include "menuwidget.h"
+#include "mileage.h"
+#include "randomnumbergenerator.h"
+#include "signindialog.h"
+#include "signupdialog.h"
+#include "wordinfodialog.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QVector>
 #include <QMessageBox>
+#include <QShortcut>
 
-GameWidget::GameWidget(QWidget *parent, MenuWidget *menuWidget)
+GameWidget::GameWidget(QMap<QString, QMap<QString, QString>> &member ,MenuWidget *menuWidget, QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::GameWidget), gameManage(), menuWidget(menuWidget)
+    , ui(new Ui::GameWidget), member(member), menuWidget(menuWidget), gameManage()
     , currentAttempts(0), maxAttempts(10)
     , anyChecked(false), isWordAdded(false)
 {
     ui->setupUi(this);
+    signInDialog = new SignInDialog(member, this);
     QString currentDir = QDir::currentPath();
     QString dirPath2 = QDir(currentDir).filePath("theme");
     WordInfoDialog wordInfoDialog(dirPath2, this);
@@ -24,24 +29,26 @@ GameWidget::GameWidget(QWidget *parent, MenuWidget *menuWidget)
         updateThemeCheckBox();
     }
     else{
-        qDebug() << "Failed to load word information";
+        qDebug() << "error: failed to load word information from path" << dirPath2;
     }
 
+
+    displayUserInfo();
     updateAddButtonState();
     ui->confirm->setEnabled(false);
+
     connect(ui->add, &QPushButton::clicked, this, &GameWidget::addButtonClicked);
     connect(ui->confirm, &QPushButton::clicked, this, &GameWidget::confirmButtonClicked);
+    connect(ui->logOut, &QPushButton::clicked, this, &GameWidget::logOutButtonClicked);
+    connect(ui->quit, &QPushButton::clicked, this, &GameWidget::quitButtonClicked);
+}
 
+GameWidget::~GameWidget()
+{
+    delete ui;
 }
 
 void GameWidget::updateThemeCheckBox(){
-    // 기존 데이터 초기화
-    // for(auto it = checkBoxes.begin(); it != checkBoxes.end(); it++){
-    //     QCheckBox *checkBox = *it;
-    //     ui->verticalLayout_2->removeWidget(checkBox);
-    //     delete checkBox;
-    // }
-    // checkBoxes.clear();
     while (QLayoutItem* item = ui->verticalLayout_2->takeAt(0)) {
         delete item->widget();  // 위젯을 삭제
         delete item;            // 레이아웃 항목 삭제
@@ -56,6 +63,72 @@ void GameWidget::updateThemeCheckBox(){
     }
 }
 
+void GameWidget::displayAttemptsAndMileage(){
+    // 남은 횟수 표시
+    int remainingAttempts = maxAttempts - currentAttempts;
+    QString accumulatedMileage = mileage.getMileage();
+    QString display = QString("남은 시도 횟수 : %1\n누적 마일리지 : %2").arg(remainingAttempts).arg(accumulatedMileage);
+    ui->attemptsAndMileage->setText(display);
+    qDebug() << "Remaining Attempts:" << remainingAttempts;
+    qDebug() << "Accumulated Mileage:" << accumulatedMileage;
+}
+
+void GameWidget::displayUserInfo(){
+    if(signInDialog){
+        ui->userInfo->setText(signInDialog->userInfo());
+    }
+    else{
+        qDebug() << "error: signInDialog is null";
+    }
+}
+
+void GameWidget::displayResult(GameManage::gameResult gameResult, QString & resultString){
+    if(gameResult != GameManage::gameResult::inValidInput){
+        QString input1 = QString("=====%1번째 시도=====").arg(currentAttempts);
+        QString input2 = QString("입력>> %1").arg(answer);
+        ui->result->append(input1);
+        ui->result->append(input2);
+        ui->result->append(resultString);
+
+    }
+}
+
+void GameWidget::correct(){
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "정답!", "정답입니다! 한번 더 하시겠습니까?", QMessageBox::Yes | QMessageBox::No);
+    if(reply == QMessageBox::Yes) {
+        resetGame();
+    } else {
+        goToMenu();
+    }
+}
+
+void GameWidget::gameOver(){
+    int extraAttempts = mileage.getExtraAttemptsBasedOnMileage();
+    if(extraAttempts > 0){
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "게임 오버"
+                                      , QString("시도 횟수를 모두 사용했습니다.\n마일리지를 사용하여 %1번의 추가 시도를 하시겠습니까?").arg(extraAttempts)
+                                      , QMessageBox::Yes | QMessageBox::No);
+
+        if(reply == QMessageBox::Yes){
+            maxAttempts += extraAttempts;
+            mileage.usedMileage(extraAttempts);
+            displayAttemptsAndMileage();
+        } else {
+            finishGame();
+        }
+    }
+    else{
+        finishGame();
+    }
+}
+
+void GameWidget::finishGame(){
+    QMessageBox::information(this, "게임 오버", "원하는 주제를 추가하면 새로운 게임을 시작합니다.");
+    resetGame();
+}
+
 void GameWidget::updateAddButtonState(){
     for (auto it = checkBoxes.begin(); it != checkBoxes.end(); it++){
         if ((*it)->isChecked()){
@@ -64,18 +137,6 @@ void GameWidget::updateAddButtonState(){
         }
     }
     ui->add->setEnabled(anyChecked);
-}
-
-void GameWidget::updateNickNameAndId(){
-
-}
-
-void GameWidget::updateAttemptsAndMileage(){
-    // 시도 횟수 & 누적 마일리지 설정
-    int remainingAttempts = maxAttempts - currentAttempts;
-    QString accumulatedMileage =  mileage.displayMileage();
-    QString labelText = QString("남은 시도 횟수 : %1\n마일리지 : %2").arg(remainingAttempts).arg(accumulatedMileage);
-    ui->attemptsAndMileage->setText(labelText);
 }
 
 void GameWidget::addButtonClicked(){
@@ -89,25 +150,25 @@ void GameWidget::addButtonClicked(){
         }
     }
 
+    if(selectedWords.isEmpty()){
+        qDebug() << "error: no words selected";
+        return;
+    }
+
     // 랜덤 난수 생성기 호출
     RandomNumberGenerator rng;
     int randomIndex = rng.randomNumberGenerator(0, selectedWords.size()-1);
     selectedWord = selectedWords[randomIndex];
 
-    qDebug() << selectedWord;
-    // ui->result->setText(selectedWord);
+    qDebug() << selectedWord;    //  정답 표시용 디버그 입니다. 문제가 어려우시면 주석을 풀고 Applicaiton Output를 보시면 됩니다!
     QString resultTopRowSetText = QString("%1개의 음절로 이루어진 단어를 입력해 주세요.").arg(selectedWord.length());
     ui->result->setText(resultTopRowSetText);
 
     // 시도 횟수 초기화
     gameManage.resetAttempts(currentAttempts, maxAttempts);
 
-    // // label_3 초기화
-    // // 추후에 labe_3 함수 따로 파서 간단하게 호출, 지금은 임시방편
-    // ui->attemptsAndMileage->setText("남은 시도 횟수 : 10\n마일리지 : 0");
-
     // 시도 횟수 & 누적 마일리지 설정
-    updateAttemptsAndMileage();
+    displayAttemptsAndMileage();
 
     // 최초 단어를 추가해야 확인버튼 활성화
     isWordAdded = true;
@@ -115,71 +176,37 @@ void GameWidget::addButtonClicked(){
 }
 
 void GameWidget::confirmButtonClicked(){
-    // result textbrowser 설정
+    // 결과창 설정
     answer = ui->inputAnswer->text();
-    qDebug() << answer;
     QString resultString;
     GameManage::gameResult gameResult = gameManage.run(selectedWord, answer, resultString, currentAttempts, maxAttempts);
-    QString input1 = QString("=====%1번째 시도=====").arg(currentAttempts);
-    QString input2 = QString("입력>> %1").arg(answer);
-    ui->result->append(input1);
-    ui->result->append(input2);
-    ui->result->append(resultString);
-
-    // 마일리지 설정
-    int earnedMileage = mileage.calculateMileage(1, 3); // 매 시도마다 1회분의 마일리지만 추가
-    mileage.addMileage(earnedMileage);
-
-    // 시도 횟수 & 누적 마일리지 설정
-    updateAttemptsAndMileage();
-
-    // 게임 결과, gameResult는 멤버변수로 선언해서 함수를 나눠도 상관없게 하자
-    switch(gameResult) {
-    case GameManage::gameResult::correct:{
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "정답!", "정답입니다! 한번 더 하시겠습니까?", QMessageBox::Yes | QMessageBox::No);
-        if(reply == QMessageBox::Yes) {
-            resetGame();
-        } else {
-            goToMenu();
-        }
-    }
-    break;
-    case GameManage::gameResult::inCorrect: break;
-    case GameManage::gameResult::gameOver:{
-        int extraAttempts = mileage.getExtraAttemptsBasedOnMileage();
-        if(extraAttempts > 0){
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "게임 오버"
-                                            , QString("시도 횟수를 모두 사용했습니다.\n마일리지를 사용하여 %1번의 추가 시도를 하시겠습니까?").arg(extraAttempts)
-                                            , QMessageBox::Yes | QMessageBox::No);
-
-            if(reply == QMessageBox::Yes){
-                maxAttempts += extraAttempts;
-                mileage.usedMileage(extraAttempts);
-                updateAttemptsAndMileage();
-                return;
-            } else {
-                goToMenu();
-                break;
-            }
-        }
-
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "게임 오버", "다시 시작하시겠습니까?", QMessageBox::Yes | QMessageBox::No);
-        if(reply == QMessageBox::Yes){
-            resetGame();
-        }
-        else{
-            goToMenu();
-        }
-
-    }
-    break;
+    if(gameResult != GameManage::gameResult::gameOver || currentAttempts < maxAttempts){
+        displayResult(gameResult, resultString);
     }
 
-    // 게임 끝나기 전 까지는 add 버튼 비활성화?
+    // 게임 결과
+    switch(gameResult){
+    case GameManage::gameResult::correct: correct(); break;
+    case GameManage::gameResult::inCorrect: mileage.addMileage(3); break;
+    case GameManage::gameResult::inValidInput: return;
+    case GameManage::gameResult::gameOver: gameOver(); break;
+    }
+    // 남은 횟수 & 마일리지 설정
+    displayAttemptsAndMileage();
+
+
+    // 게임 끝나기 전 까지는 add 버튼 비활성화
     ui->add->setEnabled(false);
+
+}
+
+void GameWidget::logOutButtonClicked(){
+    SignInDialog::isLoggedIn = false;
+    goToMenu();
+}
+
+void GameWidget::quitButtonClicked(){
+    goToMenu();
 }
 
 void GameWidget::resetGame(){
@@ -192,19 +219,15 @@ void GameWidget::resetGame(){
     ui->inputAnswer->clear();
     selectedWord.clear();
     gameManage.resetAttempts(currentAttempts, maxAttempts);
-    updateAttemptsAndMileage();
+    displayAttemptsAndMileage();
 }
 
 void GameWidget::goToMenu(){
-    if (menuWidget) {
+    if(menuWidget){
         menuWidget->show();
         this->hide();
-    } else {
-        qDebug() << "Error: menuWidget is null";
+    }else{
+        qDebug() << "error: menuWidget is null";
     }
 }
 
-GameWidget::~GameWidget()
-{
-    delete ui;
-}

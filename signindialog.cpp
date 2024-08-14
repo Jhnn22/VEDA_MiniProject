@@ -1,5 +1,6 @@
 #include "signindialog.h"
 #include "ui_signindialog.h"
+#include "memberinfodialog.h"
 #include "signupdialog.h"
 #include <QString>
 #include <QMessageBox>
@@ -7,6 +8,7 @@
 
 bool SignInDialog::isLoggedIn = false;
 QString SignInDialog::currentId = "";
+QString SignInDialog::currentName = "";
 
 SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidget *parent)
     : QDialog(parent)
@@ -14,15 +16,18 @@ SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidge
 {
     ui->setupUi(this);
 
-    // 입력 전까지 나타나는 문장
+    // 입력 전 기본 세팅
     ui->inputId->setPlaceholderText("아이디");
     ui->inputPw->setPlaceholderText("비밀번호");
-    ui->inputName->setPlaceholderText("이름");
+    ui->inputName->setPlaceholderText("임시 닉네임");
+
+    // 비밀번호는 안 보이게
+    ui->inputPw->setEchoMode(QLineEdit::Password);
 
     connect(ui->memberSignIn, &QPushButton::clicked, this, &SignInDialog::memberSignInButtonClicked);
     connect(ui->nonMemberSignIn, &QPushButton::clicked, this, &SignInDialog::nonMemberSignInButtonClicked);
     connect(ui->memberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);
-    connect(ui->nonMemberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);
+    connect(ui->nonMemberSignUp, &QPushButton::clicked, this, &SignInDialog::signUpToMemberButtonClicked);   
 }
 
 SignInDialog::~SignInDialog()
@@ -30,8 +35,23 @@ SignInDialog::~SignInDialog()
     delete ui;
 }
 
+QString SignInDialog::userInfo(){
+    if(isLoggedIn){
+        return QString("%1님\n%2").arg(member[currentId]["nickname"]).arg(currentId);
+    }
+    else{
+        return QString("%1님").arg(currentName);
+    }
+}
+
+
+void SignInDialog::memberUpdate(QMap<QString, QMap<QString, QString>> &updatedMember){
+    member = updatedMember;
+}
+
 void SignInDialog::memberSignInButtonClicked()
 {
+
     id = ui->inputId->text();
     pw = ui->inputPw->text();
 
@@ -62,13 +82,14 @@ void SignInDialog::nonMemberSignInButtonClicked()
         return;
     }
 
+    currentName = name;
     accept();
 }
 
 void SignInDialog::signUpToMemberButtonClicked()
 {
-    SUD = new SignUpDialog(member, this);
-    SUD->exec();
+    signUpDialog = new SignUpDialog(member, this);
+    signUpDialog->exec();
 }
 
 

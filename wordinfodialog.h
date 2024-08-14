@@ -17,11 +17,13 @@ class WordInfoDialog : public QDialog
 public:
     explicit WordInfoDialog(QString &dirPath, QWidget *parent = nullptr);
     ~WordInfoDialog();
+
     bool loadWordInfo(QString &dirPath, QMap<QString, QString> &word);
     void updateThemeListView();
 
 private slots:
     void search2ButtonClicked();
+    void themeListClicked(const QModelIndex &index);
 
 private:
     Ui::WordInfoDialog *ui;

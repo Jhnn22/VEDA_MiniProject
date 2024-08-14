@@ -13,15 +13,22 @@ MemberInfoDialog::MemberInfoDialog(QString &fileName, QWidget *parent)
     ui->setupUi(this);
     ui->nickNameList->setModel(model);
 
-    //읽기 전용 처리
+    // 읽기 전용 처리
     ui->searchedMemberInfo->setReadOnly(true);
     ui->nickNameList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    // 입력 전 기본 세팅
+    ui->inputNickName->setPlaceholderText("닉네임");
+
     loadMemberInfo(fileName, member);
     connect(ui->search, &QPushButton::clicked, this, &MemberInfoDialog::searchButtonClicked);
-
-    //클릭했을 때, SearchedMemberInfo에 뜨게 설정
     connect(ui->nickNameList, &QListView::clicked, this, &MemberInfoDialog::NickNameListClicked);
+}
+
+
+MemberInfoDialog::~MemberInfoDialog()
+{
+    delete ui;
 }
 
 bool MemberInfoDialog::loadMemberInfo(QString &fileName, QMap<QString, QMap<QString, QString>> &member){
@@ -33,22 +40,27 @@ bool MemberInfoDialog::loadMemberInfo(QString &fileName, QMap<QString, QMap<QStr
             member.clear();  // 기존 QMap초기화로 중복 방지
             while(!in.atEnd()){
                 QString line = in.readLine();
-                QStringList fields = line.split(" ");
+                QStringList fields = line.split(' ');
                 if(fields.size() == 3){
                     QString str1 = fields[0];
                     QString str2 = fields[1];
                     QString str3 = fields[2];
                     member[str2] = {{"nickname", str1}, {"password", str3}};
                 }
+                else{
+                    qDebug() << "invalid line format:" << line;
+                }
             }
             file.close();
+            qDebug() << "loaded members:" << member.size();
             return true;
-            // updateNickNameListView();
-            qDebug() << "Loaded members:" << member.size();
         }
         else {
-            qDebug() << "Failed to open file:" << fileName; // 디버깅용
+            qDebug() << "failed to open file:" << fileName;
         }
+    }
+    else{
+        qDebug() << "file name is empty";
     }
     return false;
 }
@@ -62,8 +74,8 @@ void MemberInfoDialog::updateNickNameListView(){
 
 }
 
-void MemberInfoDialog::setMemberInfo(QMap<QString, QMap<QString, QString>> &memberInfo){
-    member = memberInfo;
+void MemberInfoDialog::memberUpdate(QMap<QString, QMap<QString, QString>> &updatedMember){
+    member = updatedMember;
     updateNickNameListView();
 }
 
@@ -72,7 +84,7 @@ void MemberInfoDialog::searchButtonClicked(){
     bool find = false;
     for(auto it = member.begin(); it != member.end(); it++){
         if(it.value()["nickname"] == searchNickName){
-            QString info = QString("NICKNAME : %1\n ID : %2\n PW : %3").arg(it.value()["nickname"], it.key(), it.value()["password"]);
+            QString info = QString("닉네임 : %1\n아이디 : %2\n비밀번호 : %3").arg(it.value()["nickname"], it.key(), it.value()["password"]);
             ui->searchedMemberInfo->setText(info);
             find = true;
             break;
@@ -84,12 +96,6 @@ void MemberInfoDialog::searchButtonClicked(){
 
 }
 
-MemberInfoDialog::~MemberInfoDialog()
-{
-    delete ui;
-}
-
-//닉네임리스트 클릭하면 info 띄움
 void MemberInfoDialog::NickNameListClicked(const QModelIndex &index)
 {
     //NickName list에 표시된 data를 string으로 변환해서 QString에 저장하기.
@@ -97,9 +103,10 @@ void MemberInfoDialog::NickNameListClicked(const QModelIndex &index)
 
     for(auto it = member.begin(); it != member.end(); it++){
         if(it.value()["nickname"] == selectedNickName){
-            QString info = QString("NICKNAME : %1\n ID : %2\n PW : %3").arg(it.value()["nickname"], it.key(), it.value()["password"]);
+            QString info = QString("닉네임 : %1\n아이디 : %2\n비밀번호 : %3").arg(it.value()["nickname"], it.key(), it.value()["password"]);
             ui->searchedMemberInfo->setText(info);
             break;
         }
     }
 }
+

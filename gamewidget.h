@@ -8,6 +8,7 @@
 
 class QCheckBox;
 class MenuWidget;
+class SignInDialog;
 
 
 namespace Ui {
@@ -19,27 +20,39 @@ class GameWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit GameWidget(QWidget *parent = nullptr, MenuWidget *menuWidget = nullptr);
+    explicit GameWidget(QMap<QString, QMap<QString, QString>> &member, MenuWidget *menuWidget = nullptr, QWidget *parent = nullptr);
     ~GameWidget();
+
     void updateThemeCheckBox();
-    void updateAttemptsAndMileage();
-    void updateNickNameAndId();
+    void displayAttemptsAndMileage();
+    void displayUserInfo();
+    void displayResult(GameManage::gameResult gameResult, QString & resultString);
+    void correct();
+    void gameOver();
+    void finishGame();
+
 
 private slots:
     void updateAddButtonState();
     void addButtonClicked();
     void confirmButtonClicked();
+    void logOutButtonClicked();
+    void quitButtonClicked();
     void resetGame();
     void goToMenu();
 
 private:
     Ui::GameWidget *ui;
+    QMap<QString, QMap<QString, QString>> &member;
     QMap<QString, QString> word;
     QVector<QCheckBox*> checkBoxes;
     QString selectedWord, answer;
     GameManage gameManage;
-    MenuWidget *menuWidget;
     Mileage mileage;
+
+    MenuWidget *menuWidget;
+    SignInDialog *signInDialog;
+
     int maxAttempts;
     int currentAttempts;
     bool anyChecked;
