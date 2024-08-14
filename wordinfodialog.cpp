@@ -54,6 +54,33 @@ void WordInfoDialog::updateThemeListView(){
 
 }
 
+//theme의 value 값을 검색하면, key 값을 불러오게 만들기
+void WordInfoDialog::search2ButtonClicked(){
+    QString value = ui->inputValue->text(); //inputValue에 입력된 text를 value에 저장
+    // it으로 가리키기만 하면 됨.
+    ui->searchedWordList->clear();
+    QStringList stringList3; //stringlist에 map(theme) value 값 빼서 저장하기
+    for(auto it = word.begin(); it != word.end(); it++){
+        QStringList wordList = it.value().split(" ", Qt::SkipEmptyParts);
+         if(wordList.contains(value)){
+            stringList3 <<it.key();
+         }
+    }
+
+    if(stringList3.isEmpty()){
+        ui->searchedWordList->setText("해당 단어가 존재하지 않습니다.");
+    }else{
+        for(const QString &fileName : stringList3){
+            QString result = QString("검색한 단어: %1 \n단어가 있는 주제: %2").arg(value, fileName);
+            ui->searchedWordList->append(result);
+        }
+    }
+
+}
+
+
+//원래 코드
+/*
 void WordInfoDialog::search2ButtonClicked(){
     QString theme = ui->inputTheme->text(); //inputTheme에 입력된 text를 theme에 저장
     if(word.contains(theme)){
@@ -71,13 +98,14 @@ void WordInfoDialog::search2ButtonClicked(){
     }
 
 }
+*/
 
 WordInfoDialog::~WordInfoDialog()
 {
     delete ui;
 }
 
-//txt 파일 선택했을 때, info 창에 뜨도록 설정하기 /*수정중*/
+//txt 파일 선택했을 때, info 창에 뜨도록 설정하기
 
 void WordInfoDialog::themeListClicked(const QModelIndex &index)
 {

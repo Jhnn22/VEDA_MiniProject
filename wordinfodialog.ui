@@ -45,7 +45,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLineEdit" name="inputTheme"/>
+          <widget class="QLineEdit" name="inputValue"/>
          </item>
          <item>
           <widget class="QPushButton" name="search2">
