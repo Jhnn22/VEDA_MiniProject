@@ -22,6 +22,8 @@ public:
 
 private slots:
     void search2ButtonClicked();
+    void themeListClicked(const QModelIndex &index);
+
 
 private:
     Ui::WordInfoDialog *ui;

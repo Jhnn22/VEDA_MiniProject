@@ -60,12 +60,15 @@ void MenuWidget::memberListClicked()
 
 void MenuWidget::wordListClicked()
 {
-    QString dirPath = QFileDialog::getExistingDirectory(this, "select directory");
+
+    // QString dirPath = QFileDialog::getExistingDirectory(this, "select directory"); //select 하지 않고, 바로 켤 수 있도록 만들기
+    QString dirPath = "./theme/"; //수정함
     if(!dirPath.isEmpty()){
         wordInfoDialog = new WordInfoDialog(dirPath, this);
         wordInfoDialog->exec();
         delete wordInfoDialog;
     }
+
 }
 
 MenuWidget::~MenuWidget()

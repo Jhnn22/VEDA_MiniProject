@@ -17,12 +17,16 @@ WordInfoDialog::WordInfoDialog(QString &dirPath, QWidget *parent)
     ui->searchedWordList->setReadOnly(true);
     ui->themeList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    loadWordInfo(dirPath, word);
+    loadWordInfo(dirPath, word); //word load함
     updateThemeListView();
     connect(ui->search2, &QPushButton::clicked, this, &WordInfoDialog::search2ButtonClicked);
+
+    //wordinfodialog에 넣어주기
+    connect(ui->themeList, &QListView::clicked, this, &WordInfoDialog::themeListClicked);
+
 }
 
-//이부분 수정 필요
+
 bool WordInfoDialog::loadWordInfo(QString &dirPath, QMap<QString, QString> &word){
     QDir dir(dirPath);
     QStringList stringList;
@@ -51,9 +55,9 @@ void WordInfoDialog::updateThemeListView(){
 }
 
 void WordInfoDialog::search2ButtonClicked(){
-    QString theme = ui->inputTheme->text();
+    QString theme = ui->inputTheme->text(); //inputTheme에 입력된 text를 theme에 저장
     if(word.contains(theme)){
-        QString content2 = word[theme];
+        QString content2 = word[theme]; //word에 theme이 포함되어있으면, 해당키에 연결된 값을 가져오고, content2에 저장한다.
         QStringList stringList3 = content2.split(" ", Qt::SkipEmptyParts);
         std::sort(stringList3.begin(), stringList3.end());  //key값에 해당하는 value의 정렬
         ui->searchedWordList->clear();                     //중복 방지 초기화
@@ -72,3 +76,28 @@ WordInfoDialog::~WordInfoDialog()
 {
     delete ui;
 }
+
+//txt 파일 선택했을 때, info 창에 뜨도록 설정하기 /*수정중*/
+
+void WordInfoDialog::themeListClicked(const QModelIndex &index)
+{
+    //theme list에 표시된 data를 string으로 변환해서 QString에 저장하기.
+    QString selectedTheme = index.data(Qt::DisplayRole).toString();
+
+    //수정만 좀 하면 될듯
+    if(word.contains(selectedTheme)){
+        QString content3 = word[selectedTheme]; //word에 theme이 포함되어있으면, 해당키에 연결된 값을 가져오고, content2에 저장한다.
+        QStringList stringList4 = content3.split(" ", Qt::SkipEmptyParts);
+        std::sort(stringList4.begin(), stringList4.end());  //key값에 해당하는 value의 정렬
+        ui->searchedWordList->clear();                     //중복 방지 초기화
+        for(auto it = stringList4.begin(); it != stringList4.end(); it++){
+            ui->searchedWordList->append(*it);
+        }
+
+    }
+    else{
+        ui->searchedWordList->setText("해당 테마를 찾을 수 없습니다.");
+    }
+}
+
+
