@@ -22,6 +22,7 @@ class GameWidget : public QWidget
 public:
     explicit GameWidget(QMap<QString, QMap<QString, QString>> &member, MenuWidget *menuWidget = nullptr, QWidget *parent = nullptr);
     ~GameWidget();
+
     void updateThemeCheckBox();
     void displayAttemptsAndMileage();
     void displayUserInfo();
@@ -42,14 +43,16 @@ private slots:
 
 private:
     Ui::GameWidget *ui;
-    QMap<QString, QMap<QString, QString>> member;
+    QMap<QString, QMap<QString, QString>> &member;
     QMap<QString, QString> word;
     QVector<QCheckBox*> checkBoxes;
     QString selectedWord, answer;
     GameManage gameManage;
+    Mileage mileage;
+
     MenuWidget *menuWidget;
     SignInDialog *signInDialog;
-    Mileage mileage;
+
     int maxAttempts;
     int currentAttempts;
     bool anyChecked;

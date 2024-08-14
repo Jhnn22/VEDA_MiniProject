@@ -18,13 +18,14 @@ class MemberInfoDialog : public QDialog
 public:
     explicit MemberInfoDialog(QString &fileName, QWidget *parent = nullptr);
     ~MemberInfoDialog();
+
     static bool loadMemberInfo(QString &fileName, QMap<QString, QMap<QString, QString>> &member);
     void updateNickNameListView();
-    void setMemberInfo(QMap<QString, QMap<QString, QString>> &memberInfo);
+    void memberUpdate(QMap<QString, QMap<QString, QString>> &updatedMember);
 
 private slots:
     void searchButtonClicked();
-
+    void NickNameListClicked(const QModelIndex &index);
 
 private:
     Ui::MemberInfoDialog *ui;

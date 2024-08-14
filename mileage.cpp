@@ -11,10 +11,6 @@ QString Mileage::getMileage(){
     return QString::number(mileage);
 }
 
-// QString Mileage::displayMileage(){
-//     return QString::number(mileage);
-// }
-
 int Mileage::getExtraAttemptsBasedOnMileage(){
     return mileage / SIZE;
 }

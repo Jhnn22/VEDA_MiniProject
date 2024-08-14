@@ -9,8 +9,11 @@ class RandomNumberGenerator{
 private:
     random_device dev;
     mt19937 gen;
+
 public:
     RandomNumberGenerator():gen(dev()){}
+    ~RandomNumberGenerator(){}
+
     int randomNumberGenerator(int min, int max){
         uniform_int_distribution<int> dist(min, max);
         return dist(gen);

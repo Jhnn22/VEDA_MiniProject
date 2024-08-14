@@ -12,7 +12,6 @@ public:
 
     void addMileage(int amount);
     QString getMileage();
-    // QString displayMileage();
     int getExtraAttemptsBasedOnMileage();
     void usedMileage(int amount);
     int calculateMileage(int attempts, int amount);

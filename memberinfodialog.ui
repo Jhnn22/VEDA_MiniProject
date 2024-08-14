@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>회원목록</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_3">
    <item>

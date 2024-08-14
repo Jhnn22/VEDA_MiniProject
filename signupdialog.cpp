@@ -1,5 +1,6 @@
 #include "signupdialog.h"
 #include "ui_signupdialog.h"
+#include "signindialog.h"
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
@@ -14,11 +15,16 @@ SignUpDialog::SignUpDialog(QMap<QString, QMap<QString, QString>>& member, QWidge
 {
     ui->setupUi(this);
 
-    // 입력 전까지 나타나는 문장
+    // 입력 전 기본 세팅
     ui->makeNickName->setPlaceholderText("닉네임");
     ui->makeId->setPlaceholderText("아이디");
     ui->makePw->setPlaceholderText("비밀번호");
     ui->verifyPw->setPlaceholderText("비밀번호 확인");
+
+    // 비밀번호는 안 보이게
+    ui->makePw->setEchoMode(QLineEdit::Password);
+    ui->verifyPw->setEchoMode(QLineEdit::Password);
+
 
     // 가입하기 버튼은 최초 비활성화
     ui->signUp->setEnabled(false);
@@ -56,7 +62,9 @@ void SignUpDialog::saveMemberInfoToCsv(){
         out << nickName << " " << id_2 << " " << pw_2 << "\n";
         file.close();
     }
-    else return;
+    else{
+        qDebug() << "failed to open file for writing memberInfo";
+    }
 }
 
 // 닉네임, 아이디, 비밀번호 중 하나라도 통과 못하면 가입 버튼 비활성화
@@ -138,6 +146,7 @@ void SignUpDialog::signUpButtonClicked()
     member[id_2] = {{"nickname", nickName}, {"password", pw_2}};
     saveMemberInfoToCsv();
     QMessageBox::information(this, "성공", QString("%1님 환영합니다!").arg(nickName));
+    accept();
 }
 
 void SignUpDialog::textChanged(){

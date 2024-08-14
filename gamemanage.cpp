@@ -1,5 +1,4 @@
 #include "gamemanage.h"
-// #include "signindialog.h"
 #include <QDebug>
 #include <QString>  // [i]연산자를 이용해 배열처럼 문자단위 접근가능!!!!, 유니코드도 지원해줘서 substr 할 필요도 없네??!!!
 #include <QMessageBox>
@@ -19,7 +18,7 @@ GameManage::gameResult GameManage::run(QString &question, QString &answer, QStri
     // 문자열 길이 비교
     if(question.length() != answer.length()){
         QMessageBox::warning(nullptr, "경고", "입력한 단어의 길이가 올바르지 않습니다. ");
-        return gameResult::invalidInput;
+        return gameResult::inValidInput;
     }
 
     // 각 문자 비교
@@ -47,6 +46,7 @@ GameManage::gameResult GameManage::run(QString &question, QString &answer, QStri
 
     // 시도 횟수 증가
     currentAttempts++;
+
 
     return gameResult::inCorrect;
 }

@@ -6,7 +6,7 @@
 
 class QString;
 class SignUpDialog;
-
+class MemberInfoDialog;
 
 namespace Ui {
 class SignInDialog;
@@ -20,11 +20,12 @@ public:
     explicit SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidget *parent = nullptr);
     ~SignInDialog();
 
-    // 로그인 정보 저장
     static bool isLoggedIn;
     static QString currentId;
     static QString currentName;
     QString userInfo();
+    void memberUpdate(QMap<QString, QMap<QString, QString>> &updatedMember);
+
 
 private slots:
     void memberSignInButtonClicked();
@@ -34,7 +35,7 @@ private slots:
 private:
     Ui::SignInDialog *ui;
     QString id, pw, name;
-    QMap<QString, QMap<QString, QString>> member;
+    QMap<QString, QMap<QString, QString>> &member;
     SignUpDialog *signUpDialog;
 };
 

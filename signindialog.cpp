@@ -1,7 +1,7 @@
 #include "signindialog.h"
 #include "ui_signindialog.h"
-#include "signupdialog.h"
 #include "memberinfodialog.h"
+#include "signupdialog.h"
 #include <QString>
 #include <QMessageBox>
 #include <QMap>
@@ -16,10 +16,13 @@ SignInDialog::SignInDialog(QMap<QString, QMap<QString, QString>> &member, QWidge
 {
     ui->setupUi(this);
 
-    // 입력 전까지 나타나는 문장
+    // 입력 전 기본 세팅
     ui->inputId->setPlaceholderText("아이디");
     ui->inputPw->setPlaceholderText("비밀번호");
-    ui->inputName->setPlaceholderText("이름");
+    ui->inputName->setPlaceholderText("임시 닉네임");
+
+    // 비밀번호는 안 보이게
+    ui->inputPw->setEchoMode(QLineEdit::Password);
 
     connect(ui->memberSignIn, &QPushButton::clicked, this, &SignInDialog::memberSignInButtonClicked);
     connect(ui->nonMemberSignIn, &QPushButton::clicked, this, &SignInDialog::nonMemberSignInButtonClicked);
@@ -34,18 +37,20 @@ SignInDialog::~SignInDialog()
 
 QString SignInDialog::userInfo(){
     if(isLoggedIn){
-        return QString("%1님\n%2").arg(QString(member[currentId]["nickname"])).arg(currentId);
+        return QString("%1님\n%2").arg(member[currentId]["nickname"]).arg(currentId);
     }
     else{
         return QString("%1님").arg(currentName);
     }
 }
 
+
+void SignInDialog::memberUpdate(QMap<QString, QMap<QString, QString>> &updatedMember){
+    member = updatedMember;
+}
+
 void SignInDialog::memberSignInButtonClicked()
 {
-    // // 회원 정보 실시간 연동
-    // QString memberFileName = "member.txt";
-    // MemberInfoDialog::loadMemberInfo(memberFileName, member);
 
     id = ui->inputId->text();
     pw = ui->inputPw->text();
@@ -59,9 +64,6 @@ void SignInDialog::memberSignInButtonClicked()
     if(member.contains(id) && member[id]["password"] == pw){
         isLoggedIn = true;
         currentId = id;
-        qDebug() << member[id]["nickname"];
-        //테스트
-        userInfo();
         accept();
     }
     else{
